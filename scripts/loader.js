@@ -1,6 +1,12 @@
-const jewel = {};
+const jewel = {
+    screens: {}
+};
 
-window.addEventListener('load', function() {
+window.addEventListener('load', function () {
+    Modernizr.addTest('standalone', function () {
+        return (window.navigator.standalone != false);
+    });
+
     Modernizr.load([
         {
             load: [
@@ -8,10 +14,30 @@ window.addEventListener('load', function() {
                 'scripts/dom.js',
                 'scripts/game.js'
             ],
-            complete: function() {
+        },
+        {
+            test: Modernizr.standalone,
+            yep: 'scripts/screen.splash.js',
+            nope: 'scripts/screen.install.js',
+            complete: function () {
+                jewel.game.setup();
                 console.log('Finished loading all the scripts asynchronously!');
-                jewel.game.showScreen('splash-screen');
+                if (Modernizr.standalone) {
+                    jewel.game.showScreen('splash-screen');
+                } else {
+                    jewel.game.showScreen('install-screen');
+                }
             }
         }
-    ])
+    ]);
+    // if we are on Safari iOS, force user to install game as standalone
+    // then only show main menu if the game was opened from "native" icon
+    // in other cases (not Safari iOS), user can tap the screen.splash.js screen to continue
+    if (Modernizr.standalone) {
+        Modernizr.load([
+            {
+                load: ["scripts/screen.main-menu.js"]
+            }
+        ]);
+    }
 });
