@@ -1,5 +1,11 @@
 const jewel = {
-    screens: {}
+    screens: {},
+    settings: {
+        rows: 8,
+        cols: 8,
+        baseScore: 100,
+        numJewelTypes: 7
+    }
 };
 
 window.addEventListener('load', function () {
@@ -32,11 +38,14 @@ window.addEventListener('load', function () {
     ]);
     // if we are on Safari iOS, force user to install game as standalone
     // then only show main menu if the game was opened from "native" icon
-    // in other cases (not Safari iOS), user can tap the screen.splash.js screen to continue
+    // in other cases (not Safari iOS), this will always be run
     if (Modernizr.standalone) {
         Modernizr.load([
             {
-                load: ["scripts/screen.main-menu.js"]
+                load: [
+                    'scripts/screen.main-menu.js',
+                    'scripts/board.js'
+                ]
             }
         ]);
     }
