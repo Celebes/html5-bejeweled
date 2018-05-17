@@ -13,6 +13,14 @@ window.addEventListener('load', function () {
         return (window.navigator.standalone != false);
     });
 
+    // creates a yepnope prefix, which prevents scripts from being executed on load
+    // thanks to this we can load web worker without errors, because functions like
+    // importScripts() are available to use only when we are in Web Worker context
+    yepnope.addPrefix("preload", function (resource) {
+        resource.noexec = true;
+        return resource;
+    });
+
     Modernizr.load([
         {
             load: [
@@ -27,7 +35,6 @@ window.addEventListener('load', function () {
             nope: 'scripts/screen.install.js',
             complete: function () {
                 jewel.game.setup();
-                console.log('Finished loading all the scripts asynchronously!');
                 if (Modernizr.standalone) {
                     jewel.game.showScreen('splash-screen');
                 } else {
@@ -43,9 +50,15 @@ window.addEventListener('load', function () {
         Modernizr.load([
             {
                 load: [
-                    'scripts/screen.main-menu.js',
-                    'scripts/board.js'
+                    'scripts/screen.main-menu.js'
                 ]
+            }, {
+                test: Modernizr.webworkers,
+                yep: [
+                    'scripts/board.worker-interface.js',
+                    'preload!scripts/board.worker.js'
+                ],
+                nope: 'scripts/board.js'
             }
         ]);
     }
